@@ -1,5 +1,5 @@
 # holvi-laskutus
-Laskutuksen automatisointi Holvi verkkopankkiin. Ohjelma lukee laskuaineiston Excel -tiedostosta ja lähettää sähköpostilaskut Holvia käyttäen.
+Laskutuksen automatisointi Holvi verkkopankkiin. Ohjelma lukee laskuaineiston Excel -tiedostosta ja lähettää sähköpostilaskut Holvia käyttäen. Excel pohjana voi käyttää Example.xlsx -tiedostoa.
 
 ## Käyttöohjeet
 1. Asenna Python3.
