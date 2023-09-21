@@ -26,8 +26,8 @@ TestExcel
 *** Keywords ***
 Initiate Holvi
     Open Browser    https://login.app.holvi.com   chrome
-    Wait Until Element Is Visible    class=accept-cookies-button    60s
-    Click Button    class=accept-cookies-button
+    Wait Until Element Is Visible    id=onetrust-accept-btn-handler    20s
+    Click Button    id=onetrust-accept-btn-handler
     Input Text    id=email    ${USERNAME}
     Input Password    id=password    ${PASSWORD}
     Click Button    id=submit
