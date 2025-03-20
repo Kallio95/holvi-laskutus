@@ -21,6 +21,7 @@ TestExcel
         ${category}=  Read Excel Cell  row_num=${i}  col_num=7    sheet_name=Sheet1
         ${name}=    Catenate    ${lname}    ${fname}
         Fill Invoice Details    ${name}    ${email}    ${sum}    ${msg}    ${subject}    ${category}
+        Log To Console    \n${name} lähetetty!\nYht: ${i}/${rowCount}
     END
 
 *** Keywords ***
@@ -43,16 +44,18 @@ Fill Invoice Details
     Click Element    id=sidebar-invoicing
     Sleep    1s
     Click Element    id=sidebar-invoicing-new    
-    Wait Until Element Is Visible    id=dropdownContactWidget    60s
-    Input Text    id=dropdownContactWidget    ${name}
+    Wait Until Element Is Visible    id=receiver.name-label    10s
+    Press Keys    None    TAB    TAB
+    Press Keys    None    ${name}
     Sleep   1s
     Input Text    id=receiver.email    ${email}
-    Input Text    id=invoiceSubjectInput    ${subject}
+    Input Text    id=subject    ${subject}
     Input Text    id=items.0.description    ${msg}
-    Select From List By Label    id=items.0.category    ${category}
+    Select From List By Label    id=new-payment-category-select-id-0    ${category}
     Input Text    id=items.0.quantity    1
-    Input Text    id=items.0.detailed_price.gross    ${sum}
-    Click Button    id=dropdownSendMethods
-    Sleep    1s
-    Click Link    xpath=//*[@id="invoiceForm"]/fieldset/div/div[5]/div/div/a[2]
+    Input Text    name=items.0.detailed_price.gross    ${sum}
+    Scroll Element Into View    xpath=//button[normalize-space()='Lähetä']
+    Click Element    xpath=//button[normalize-space()='Lähetä']
+    Sleep    2s
+    Click Link    xpath=//a[normalize-space()='Lähetä sähköpostitse']
     Sleep    3s

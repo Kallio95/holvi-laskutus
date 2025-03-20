@@ -3,3 +3,6 @@ log.html
 output.xml
 report.html
 *.png
+pyvenv.cfg
+lib/*
+bin/*
