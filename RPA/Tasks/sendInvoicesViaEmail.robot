@@ -11,6 +11,7 @@ TestExcel
     ${columnData}=    Read Excel Column    col_num=1 
     ${rowCount}=    Evaluate    len(${columnData})
     Log To Console    \nRivien lkm: ${rowCount}
+    Sleep    10s
     FOR    ${i}    IN RANGE    2    ${rowCount}
         ${lname}=  Read Excel Cell  row_num=${i}  col_num=1    sheet_name=Sheet1
         ${fname}=  Read Excel Cell  row_num=${i}  col_num=2    sheet_name=Sheet1
@@ -40,22 +41,28 @@ Close Holvi
 
 Fill Invoice Details
     [Arguments]    ${name}    ${email}    ${sum}    ${msg}    ${subject}    ${category}
-    Wait Until Element Is Visible    id=sidebar-invoicing    60s
-    Click Element    id=sidebar-invoicing
+    # Wait for login to go through
+    Wait Until Element Is Visible    id=account.invoicing    60s
+    # Go to new invoice page
+    Click Element    id=account.invoicing
     Sleep    1s
-    Click Element    id=sidebar-invoicing-new    
+    Click Element    id=sidebar-invoicing-new
     Wait Until Element Is Visible    id=receiver.name-label    10s
-    Press Keys    None    TAB    TAB
+    # Fill in receiver name
+    Click Element    xpath=//*[@id="invoice-edit-form"]/section[1]/div/div/div[1]/div[1]/div/div/div/div
     Press Keys    None    ${name}
     Sleep   1s
+    # Select email as delivery method
+    Press Keys    None    TAB    TAB    TAB    ARROW_DOWN    ENTER
+    Capture Page Screenshot    screenshot-${name}.png
+    # Fill in receiver email
     Input Text    id=receiver.email    ${email}
+    Capture Page Screenshot    screenshot-${name}-email.png
     Input Text    id=subject    ${subject}
     Input Text    id=items.0.description    ${msg}
     Select From List By Label    id=new-payment-category-select-id-0    ${category}
     Input Text    id=items.0.quantity    1
     Input Text    name=items.0.detailed_price.gross    ${sum}
-    Scroll Element Into View    xpath=//button[normalize-space()='Lähetä']
-    Click Element    xpath=//button[normalize-space()='Lähetä']
-    Sleep    2s
-    Click Link    xpath=//a[normalize-space()='Lähetä sähköpostitse']
+    Scroll Element Into View    xpath=//button[normalize-space()='Lähetä nyt']
+    Click Element    xpath=//button[normalize-space()='Lähetä nyt']
     Sleep    3s
