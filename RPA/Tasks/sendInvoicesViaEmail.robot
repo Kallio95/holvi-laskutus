@@ -12,7 +12,7 @@ TestExcel
     ${rowCount}=    Evaluate    len(${columnData})
     Log To Console    \nRivien lkm: ${rowCount}
     Sleep    10s
-    FOR    ${i}    IN RANGE    2    ${rowCount}
+    FOR    ${i}    IN RANGE    2    ${rowCount}+1
         ${lname}=  Read Excel Cell  row_num=${i}  col_num=1    sheet_name=Sheet1
         ${fname}=  Read Excel Cell  row_num=${i}  col_num=2    sheet_name=Sheet1
         ${email}=  Read Excel Cell  row_num=${i}  col_num=3    sheet_name=Sheet1
@@ -20,17 +20,22 @@ TestExcel
         ${msg}=  Read Excel Cell  row_num=${i}  col_num=5    sheet_name=Sheet1
         ${subject}=  Read Excel Cell  row_num=${i}  col_num=6    sheet_name=Sheet1
         ${category}=  Read Excel Cell  row_num=${i}  col_num=7    sheet_name=Sheet1
-        ${name}=    Catenate    ${lname}    ${fname}
+        IF    $lname is None or $email is None
+            Log To Console    \nRivi ${i} ohitettu: nimi tai sähköposti puuttuu
+            CONTINUE
+        END
+        ${name}=    Evaluate    ' '.join(str(p) for p in ($lname, $fname) if p)
         Fill Invoice Details    ${name}    ${email}    ${sum}    ${msg}    ${subject}    ${category}
         Log To Console    \n${name} lähetetty!\nYht: ${i}/${rowCount}
     END
 
 *** Keywords ***
 Initiate Holvi
-    Open Browser    https://login.app.holvi.com   chrome
-    Wait Until Element Is Visible    id=onetrust-accept-btn-handler    20s
-    Sleep    1s
-    Click Button    id=onetrust-accept-btn-handler
+    # Holvi UI language follows the browser; locators expect Finnish
+    Open Browser    https://login.app.holvi.com   chrome    options=add_experimental_option("prefs", {"intl.accept_languages": "fi"})
+    Wait Until Element Is Visible    id=email    20s
+    ${cookieBanner}=    Run Keyword And Return Status    Element Should Be Visible    id=onetrust-accept-btn-handler
+    IF    ${cookieBanner}    Click Button    id=onetrust-accept-btn-handler
     Input Text    id=email    ${USERNAME}
     Input Password    id=password    ${PASSWORD}
     Click Button    id=submit
@@ -47,7 +52,7 @@ Fill Invoice Details
     Click Element    id=account.invoicing
     Sleep    1s
     Click Element    id=sidebar-invoicing-new
-    Wait Until Element Is Visible    id=receiver.name-label    10s
+    Wait Until Element Is Visible    id=invoice.receiver.name-label    10s
     # Fill in receiver name
     Click Element    xpath=//*[@id="invoice-edit-form"]/section[1]/div/div/div[1]/div[1]/div/div/div/div
     Press Keys    None    ${name}
@@ -56,11 +61,16 @@ Fill Invoice Details
     Press Keys    None    TAB    TAB    TAB    ARROW_DOWN    ENTER
     Capture Page Screenshot    screenshot-${name}.png
     # Fill in receiver email
-    Input Text    id=receiver.email    ${email}
+    Input Text    id=invoice.receiver.email    ${email}
     Capture Page Screenshot    screenshot-${name}-email.png
     Input Text    id=subject    ${subject}
     Input Text    id=items.0.description    ${msg}
-    Select From List By Label    id=new-payment-category-select-id-0    ${category}
+    IF    $category
+        Click Element    css=[aria-owns="listbox-new-payment-category-select-id-0"]
+        ${option}=    Set Variable    xpath=//ul[@id='listbox-new-payment-category-select-id-0']//span[normalize-space()='${category}']
+        Wait Until Element Is Visible    ${option}    5s
+        Click Element    ${option}
+    END
     Input Text    id=items.0.quantity    1
     Input Text    name=items.0.detailed_price.gross    ${sum}
     Scroll Element Into View    xpath=//button[normalize-space()='Lähetä nyt']

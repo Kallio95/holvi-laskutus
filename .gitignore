@@ -6,3 +6,4 @@ report.html
 pyvenv.cfg
 lib/*
 bin/*
+.DS_Store
